@@ -124,7 +124,7 @@ async def process(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ================== START BOT ==================
 
-def start_bot():
+async def run_bot():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
@@ -132,21 +132,21 @@ def start_bot():
     application.add_handler(CommandHandler("changefileid", changefileid))
     application.add_handler(CommandHandler("process", process))
     application.add_handler(
-        MessageHandler(
-            filters.Document.ALL | filters.Video.ALL,
-            handle_files
-        )
+        MessageHandler(filters.Document.ALL | filters.Video.ALL, handle_files)
     )
 
-    application.run_polling()
+    await application.initialize()
+    await application.start()
+    await application.bot.initialize()
+    await application.updater.start_polling()
+    print("🤖 Telegram bot started")
 
-# ================== MAIN ==================
+async def main():
+    # start telegram bot
+    asyncio.create_task(run_bot())
+
+    # start flask (render needs this)
+    app.run(host="0.0.0.0", port=PORT)
 
 if __name__ == "__main__":
-    # Start Telegram bot in event loop
-    asyncio.get_event_loop().create_task(
-        asyncio.to_thread(start_bot)
-    )
-
-    # Start Flask (Render needs this)
-    app.run(host="0.0.0.0", port=PORT)
+    asyncio.run(main())
