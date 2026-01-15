@@ -109,7 +109,7 @@ def start_bot():
     app_bot.add_handler(CommandHandler("changefileid", changefileid))
     app_bot.add_handler(CommandHandler("process", process))
     app_bot.add_handler(
-        MessageHandler(filters.Document.ALL | filters.Video.ALL, handle_files)
+    MessageHandler(filters.ATTACHMENT, handle_files)
     )
 
     print("🤖 Telegram bot started polling")
